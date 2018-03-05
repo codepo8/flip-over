@@ -1,0 +1,383 @@
+:root {
+    --countdown-time: 20s;
+    /* 
+        ^ this will be replaced with the 
+        value in the game config (roundtime)
+    */
+    --timer-size: 70;
+    --timer-width: 4;
+    --timer-r: calc((var(--timer-size) - var(--timer-width))*.5px);
+    --timer-colour: firebrick;
+    --timer-cover-colour: #fff;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background:whitesmoke;
+    font-size: calc(16px + 1vw);
+}
+header {
+    display: block;
+    background: #333;
+    color: #fff;
+    font-size: 0.6em;
+    overflow: hidden;
+}
+header h1 {
+    float: left;
+    font-size: 1em;
+    font-weight: normal;
+    padding-left: 1em;
+}
+header a {
+    float: right;
+    color: #fff;
+    padding-right: 1em;
+    font-size: 1em;
+    line-height: 3em;
+}
+h2 {
+    margin: 0;
+    font-size: 1em;
+}
+
+p,li {
+    font-size: 0.8em;
+    margin: 0;
+    padding: 0;
+    margin-bottom: .5em;
+    line-height: 1.3;
+}
+span.dicedemo {
+    font-size: 1.3em;
+
+}
+.calcdemo {
+    background: #ccc;
+}
+section {
+    display: block;
+    background: #fff;
+    padding: 10px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    box-shadow: 4px 4px 10px #ccc;
+    margin: 10px;
+}
+
+button {
+    border: none;
+    background: transparent;
+}
+
+.action {
+    font-size: 1em;
+    border: none;   
+    float: right;
+}
+
+/* Progress bar */
+
+#progressbar {
+    height: 0.5em;
+    background: linear-gradient(to right, green, yellow, red);
+    position: relative;
+}
+#progressbar div {
+    background: #fff;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 0.5em;
+    width: 100%;
+}
+#progressbar.animated div {
+    animation: reveal var(--countdown-time) linear;
+}
+
+@keyframes reveal {
+    from {width: 100%;}
+    to {width: 0;}
+}
+
+/* Radial timer */ 
+/* Heavily adapted from https://codepen.io/tamak/pen/DLvtF */
+#tomatch {
+    position: relative;
+    z-index: 20;
+    display: inline-block;
+    line-height: 60px;
+    height: calc(var(--timer-size) * 1px);
+    width: calc(var(--timer-size) * 1px);
+    font-size: 1em;
+}
+.radial-timer {
+    overflow: hidden;
+    display: inline-block;
+    height: calc(var(--timer-size) * 1px);
+    width: calc(var(--timer-size) * 1px);
+    position: relative;
+    text-align: center;
+}
+.radial-timer .radial-timer-half {
+    height: calc(var(--timer-size) * 1px);
+    width: calc(var(--timer-size) / 2 * 1px);
+    border-radius: var(--timer-r) 0 0 var(--timer-r);
+    background: var(--timer-colour);
+    position: absolute;
+}
+.radial-timer .radial-timer-half:nth-of-type(2) {
+    z-index: 3;
+    transform-origin: center right;
+    transform: rotate(180deg);
+}
+.radial-timer .radial-timer-half:before {
+    content: "";
+    position: absolute;
+    top: calc(var(--timer-width) * 1px);
+    left: calc(var(--timer-width) * 1px);
+    height: calc((var(--timer-size) - var(--timer-width) * 2) * 1px);
+    width: calc(((var(--timer-size) - var(--timer-width) * 2) / 2) * 1px);
+    border-radius: calc((var(--timer-size) - var(--timer-width))/2 * 1px) 0 0 calc((var(--timer-size) - var(--timer-width))/2 * 1px);
+    background: var(--timer-cover-colour);
+}
+.radial-timer .radial-timer-half:after {
+    content: "";
+    position: absolute;
+    background: var(--timer-cover-colour);
+    height: calc(var(--timer-size) * 2 * 1px);
+    width: calc(var(--timer-size) * 1.5 * 1px);
+    left: calc(var(--timer-size) * -1px);
+    top: calc((var(--timer-size) / 2) * -1px);
+    transform-origin: center right;
+}
+.radial-timer.animated {
+    transform-origin: center right;
+    animation: dummy var(--countdown-time) linear;
+}
+.radial-timer.animated .radial-timer-half:nth-of-type(1):after {
+    animation: rotateLeftMask var(--countdown-time) linear;
+}
+.radial-timer.animated .radial-timer-half:nth-of-type(2):after {
+    animation: rotateRightMask var(--countdown-time) linear;
+}
+@keyframes dummy {
+    from {top: 0;}
+    to { top: 0;}
+}
+@keyframes rotateLeftMask {
+    0% {transform: rotate(0deg);}
+    50% {transform: rotate(0deg);}
+    100% {transform: rotate(180deg);}
+}
+@keyframes rotateRightMask {
+    0% {transform: rotate(0deg);}
+    50% {transform: rotate(180deg);visibility: hidden;}
+    100% {transform: rotate(180deg);visibility: hidden;}
+}
+
+.checkboxes {
+    text-align: right;
+    padding: 2px 5px;
+    font-size: 0.8em;    
+}
+/* Dice field */
+
+/* Roll the dice button */
+#roll {
+    display: block;
+    width: 100%;
+    line-height: 2em;
+    font-size: 2em;
+    color:green;
+    border: none;
+    text-align: center;
+    background: transparent;
+}
+#roll.hidden {
+    display: none;
+}
+
+#rollresults {
+    margin: 1em auto;
+    text-align: center;
+    max-width: 25em;
+}
+.flexgrid {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.slot {
+    float: left;
+    padding: 0 10px;
+    text-align: center;
+    display: flex;
+    flex: 0 1 auto;
+}
+#rollresults button {
+    padding: .5em;
+    border: none;
+}
+
+#die1, #die2, #die3 {
+    font-size: 4em;
+}
+
+.selected {
+    opacity: 0.2;
+}
+
+/* Calculator buttons */
+
+#operators {
+    text-align: center;
+    display: block;
+}
+#operators.hidden {
+    display: none;
+}
+
+#operators button {
+    border: none;
+    margin-left:.1em;
+    font-size: 2em;
+    background: #eee;
+    width: 1.5em;
+    line-height: 1.3em;
+    margin-bottom: .2em;
+    box-shadow: 2px 2px 5px #999;
+}
+#operators button:hover {
+    box-shadow: 1px 1px 3px #999;
+}
+#operators button:active {
+    background: lightgoldenrodyellow;
+    color: #000;
+    box-shadow: 1px 1px 3px #999;
+}
+
+#operators button[data-val="delete"] {
+    background: pink;
+}
+#operators button[data-val="done"] {
+    background: lime;
+}
+
+/* Error message */
+
+#errorfield {
+    background: firebrick;
+    color: #fff;
+    font-size: 1em;
+    margin: 5px 0;
+    padding: 5px 10px;
+    display: block;
+}
+#errorfield.hidden {
+    display: none;
+}
+
+/* Calculation result field */ 
+
+#calculation {
+    display: block;
+    padding: 10px 0;
+    font-size: 1.8em;
+    letter-spacing: .1em;
+    text-align: center;
+}
+#calculation span {
+    color: green;
+    display: block;
+    margin: 5px; 
+    text-align: center;
+    font-size: 0.7em;
+}
+.error {
+    color: red;
+}
+.hidden {
+    display: none;
+}
+#playerlist {
+    display: inline-block;
+}
+#playerlist .currentplayer {
+    background: lightblue;
+}
+#playerlist span {
+    display: inline-block;
+    padding: 2px 5px;
+    margin-right: 5px;
+}
+#addplayer {
+    border: none;
+    font-weight: bold;
+    padding: 2px 5px;
+    margin: 0;    
+    font-size: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+#addplayer.compact {
+    font-size: 1.1em;
+}
+
+#playername {
+    display: none;
+    border: none;
+    background: #eee;
+    padding: 2px 5px;
+    font-size: 0.8em;
+    margin: 0;
+    width: 4em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#playername.show {
+    display: inline-block;
+}
+
+#playerlist ul {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+#playerlist a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 4px;
+    color: #777;
+    font-weight: normal;
+}
+#playerlist li {
+    font-weight: bold;
+    font-size: 0.7em;
+    margin-right: 5px;
+    padding: 2px 5px;
+    background: #eee;
+    display: inline-block;
+}
+
+#rounds {
+    float: right;
+}
+
+footer {
+    display: block;
+    font-size: 0.5em;
+    padding-top: 3em;
+    text-align: center;
+    color: #ccc;
+}
+footer a {
+    color: #999;
+}
+
+
+  
