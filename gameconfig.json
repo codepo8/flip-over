@@ -1,0 +1,38 @@
+{
+    "errormessages" : {
+        "noterm": "Nothing to calculate :(",
+        "morethan15": "This is more than 15 :(",
+        "lessthanzero": "This is less than zero :(",
+        "invalidterm": "This is not a valid term",
+        "outoftime": "Out of time :(",
+        "notalldice": "You have to use all the dice"
+    },
+    "messages": {
+        "gameoverturnmessage": "Well, that's that! You survived $turns rounds."
+    },
+    "labels": {
+        "buttons": {
+            "addplayercompact": "+",
+            "addplayerfull": "Add Player",
+            "singleplayerroll": "Roll the dice",
+            "multiplayerroll": "$name, roll the dice"
+        },
+        "rounds": "Round: $round"
+    },
+    "roundtime": 20,
+    "gameendscore": 20,
+    "winnerpatterns": {
+        "1":[[1]],
+        "2":[[2]],
+        "3":[[1,2],[3]],
+        "4":[[1,3],[4]],
+        "5":[[1,4],[2,3],[5]],
+        "6":[[1,2,3],[1,5],[2,4],[6]],
+        "7":[[1,2,4],[1,6],[2,5],[3,4],[7]],
+        "8":[[1,2,5],[1,3,4],[1,7],[2,6],[3,5],[8]],
+        "9":[[1,2,6],[1,3,5],[1,8],[2,3,4],[2,7],[3,6],[4,5],[9]],
+        "10":[[1,2,3,4],[1,2,7],[1,3,6],[1,4,5],[1,9],[2,3,5],[2,8],[3,7],[4,6],[10]],
+        "11":[[1,2,3,5],[1,2,8],[1,3,7],[1,4,6],[1,10],[2,3,6],[2,4,5],[2,9],[3,8],[4,7],[5,6],[11]],
+        "12":[[1,2,3,6],[1,2,4,5],[1,2,9],[1,3,8],[1,4,7],[1,5,6],[1,11],[2,3,7],[2,4,6],[2,10],[3,4,5],[3,9],[4,8],[5,7],[12]]
+    }
+}

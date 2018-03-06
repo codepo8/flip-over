@@ -5,12 +5,8 @@ const throwbutton     = document.querySelector('#roll');
 const calculation     = document.querySelector('#calculation');
 const die1            = document.querySelector('#die1');
 const die2            = document.querySelector('#die2');
-const die3            = document.querySelector('#die3');
-const operators       = document.querySelector('#operators');
 const errorfield      = document.querySelector('#errorfield');
 const rollresults     = document.querySelector('#rollresults');
-const progress        = document.querySelector('#radialtimer');
-const fullscore       = document.querySelector('#tomatch');
 const playersection   = document.querySelector('#players');
 const addplayerbutton = document.querySelector('#addplayer');
 const playerform      = document.querySelector('#playerlist');
@@ -20,23 +16,16 @@ const gamescreen      = document.querySelector('#game');
 const creditscreen    = document.querySelector('#credits');
 const introscreen     = document.querySelector('#intro');
 const gameoverscreen  = document.querySelector('#gameover');
+const flipoptions     = document.querySelector('#checkboxes');
 const turnmessage     = document.querySelector('#turnmessage')
-const roundlabel      = document.querySelector('#rounds');
-const countdowncheck  = document.querySelector('#timercheck');
-const hintcheck       = document.querySelector('#hintcheck');
 
-let currentterm = '';
 let config = {};
-let runningtimer = null;
 let currentplayer = 0;
-let players = localStorage.playercache ?  JSON.parse(localStorage.playercache) : [];
+let players = localStorage.flipoverplayercache ?  JSON.parse(localStorage.flipoverplayercache) : [];
 
 const init = () => {
     restartbutton.addEventListener('click', setupgame);
     throwbutton.addEventListener('click', rollthem);
-    rollresults.addEventListener('click', getdice);
-    operators.addEventListener('click', operatorfunctions);
-    progress.addEventListener('animationend' ,outoftime);
     addplayerbutton.addEventListener('click', toggleplayerform);
     playerform.addEventListener('submit', addplayer);
     playerform.querySelector('ul').addEventListener('click', removeplayer);
@@ -112,141 +101,29 @@ const advanceplayers = () => {
             gameover();
         } else {
             currentplayer = (currentplayer + 1) % players.length;
-            if (currentplayer === 0) {
-                game.turns++;
-                updaterounds();
-            }
             throwbutton.innerHTML = players[currentplayer].name + ', roll the dice!';
             populateplayers(currentplayer);
        }
     }
 }
 
-const updaterounds = () => {
-    roundlabel.innerHTML = config.labels.rounds.replace('$round', game.turns);
- };
-
-/* Dice controls */
-const getdice = (ev) => {
-    let t = ev.target;
-    if (t.tagName !== 'BUTTON') {return;}
-    if (!t.classList.contains('selected') && 
-        !/\d$/.test(currentterm)) {
-        currentterm += t.dataset.val;
-        calculation.innerHTML = currentterm;
-        t.classList.add('selected');
-    }
-    ev.preventDefault();
-};
-
-const operatorfunctions = (ev) => {
-    let t = ev.target;
-    if (t.tagName !== 'BUTTON') {return;}
-    if (t.dataset.val === 'delete') {
-        clearmove();
-        return;
-    } 
-    if (t.dataset.val === 'done') {
-        if (currentterm === '') {
-            errorfield.innerHTML = config.errormessages.noterm;;
-            calculation.className = 'error';
-            errorfield.className = '';
-            return;
-         }
-         try {
-            eval(currentterm);
-        } catch (e) {
-            errorfield.innerHTML = config.errormessages.invalidterm;
-            calculation.className = 'error';
-            errorfield.className = '';
-            return;
-        }
-        let finalvalue = eval(currentterm);
-        if (finalvalue < 0) {
-            errorfield.className = '';
-            errorfield.innerHTML = config.errormessages.lessthanzero;
-        }
-        if (finalvalue > 15) {
-            errorfield.innerHTML = config.errormessages.morethan15;
-            calculation.className = 'error';
-            errorfield.className = '';
-        } 
-        if ([die1,die2,die3].map(
-            d => {return (d.classList.contains('selected'))})
-            .includes(false)) {
-            errorfield.innerHTML = config.errormessages.notalldice;
-            calculation.className = 'error';
-            errorfield.className = '';
-            return;
-        }
-        if (finalvalue >= 0 && finalvalue < 16) {
-            calculation.innerHTML = currentterm + ' = ' + finalvalue;
-            if (fullscore.dataset.bestvalue > finalvalue) {
-                if (hintcheck.checked) {
-                    calculation.innerHTML += `<span>${fullscore.dataset.term} = 
-                                            ${fullscore.dataset.bestvalue}</span>`;
-                }
-                if (players.length > 0) {
-                    players[currentplayer].score += fullscore.dataset.bestvalue - finalvalue;
-                }
-            }
-            advanceplayers();
-            rollresults.className = 'hidden';
-            calculation.classList.remove('error');
-            errorfield.className = 'hidden';
-            throwbutton.className = ''; 
-            cancelcountdown();
-        }
-        return;
-    }
-    currentterm += ' ' + t.dataset.val + ' ';
-    calculation.innerHTML = currentterm;
-    ev.preventDefault();
-}
 
 const rollthem = (ev) => {
-    startcountdown();
     let valueone = throwdice();
     let valuetwo = throwdice();
-    let valuethree = throwdice();
-    let valuematch = [valueone, valuetwo, valuethree].sort();
-    fullscore.innerHTML = '=' + config.winnerpatterns[valuematch.join('')][0];
-    fullscore.dataset.bestvalue = config.winnerpatterns[valuematch.join('')][0];
-    fullscore.dataset.term = config.winnerpatterns[valuematch.join('')][1];
     die1.title = die1.dataset.val = valueone;
     die2.title = die2.dataset.val = valuetwo;
-    die3.title = die3.dataset.val = valuethree;
     die1.className = `dice dice-${valueone}`;
     die2.className = `dice dice-${valuetwo}`;
-    die3.className = `dice dice-${valuethree}`;
     throwbutton.className = 'hidden';
     rollresults.className = '';
-    operators.className = '';
-    calculation.innerHTML = '';
     errorfield.className = 'hidden';
-    currentterm = '';
+    paintflipoptions(valueone + valuetwo);
     ev.preventDefault();
 };
-
-/* Error / Game End Handling */
-const outoftime = (ev) => {
-    if (ev && ev.animationName === 'dummy') {
-        operators.className = 'hidden';
-        progress.classList.remove('animated');
-        rollresults.className = 'hidden';
-        errorfield.innerHTML = config.errormessages.outoftime;
-        errorfield.className = '';
-        throwbutton.className = '';
-        if (players.length > 0) {
-            players[currentplayer].score += +fullscore.dataset.bestvalue;
-        }
-        advanceplayers();        
-    }
-}
 
 const gameover = () => {
     setsection(gameoverscreen);
-    turnmessage.innerHTML = config.messages.gameoverturnmessage.replace('$turns', game.turns);
     let playerscore = players.slice(0);
     playerscore.sort((a,b) => {
         return a.score > b.score
@@ -260,27 +137,11 @@ const gameover = () => {
 
 /* HELPER FUNCTIONS */
 
-const cancelcountdown = () => {
-    progress.classList.remove('animated');
-    //window.clearTimeout(runningtimer);
-}
-
-const startcountdown = () => {
-    if (countdowncheck.checked) {
-        progress.classList.add('animated');
-        //runningtimer = window.setTimeout(outoftime, config.roundtime);
-    }
-};
-
 const clearmove = () => {
     errorfield.innerHTML = '';
-    calculation.innerHTML = '';
-    currentterm = '';
     errorfield.classList.add('hidden');
-    calculation.classList.remove('error');
     die1.classList.remove('selected');
     die2.classList.remove('selected');
-    die3.classList.remove('selected');
 }
 
 const setsection = (stateid) => {
@@ -290,33 +151,35 @@ const setsection = (stateid) => {
     stateid.classList.remove('hidden');
 }
 const setupgame = (ev) => {
-    document.documentElement.style.setProperty(
-        '--countdown-time', config.roundtime + 's'
-    );    
     players.forEach(p => {
         p.score = 0;
     });
     currentplayer = 0;
-    currentterm = '';
-    game.turns = 1;
-    updaterounds();
     populateplayers(currentplayer);
-    [throwbutton, operators, calculation, playersection].forEach(s => {
+    [throwbutton, playersection].forEach(s => {
         s.classList.remove('hidden');
     })
-    calculation.classList.remove('error');
     errorfield.classList.add('hidden');
     rollresults.classList.add('hidden');
     errorfield.innerHTML = '';
-    calculation.innerHTML = '';
     throwbutton.innerHTML = players.length > 0 ?
         config.labels.buttons.multiplayerroll.replace(
             '$name', players[currentplayer].name
         ): 
         config.labels.buttons.singleplayerroll;
     setsection(gamescreen);
+    paintflipoptions();
     if (ev) {ev.preventDefault()}
 };
+
+const paintflipoptions = (num) => {
+    var out = ''
+    for(let i = 1; i < 13; i += 1) {
+        out += `<button class="${(i>num)?'nope':''}" data-val="${i}">${i}</button>`;
+    }
+    flipoptions.innerHTML = out;
+}
+
 
 const setuptextscreens = (screendata) => {
     screendata.forEach((s) => {
